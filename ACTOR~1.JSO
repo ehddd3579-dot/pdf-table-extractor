@@ -1,0 +1,12 @@
+{
+  "actorSpecification": 1,
+  "name": "pdf-table-extractor",
+  "title": "PDF Table Extractor - tables to Excel, CSV, JSON",
+  "description": "Extract tables from PDF files with column structure and empty cells preserved. Outputs clean JSON, CSV and Markdown.",
+  "version": "0.1",
+  "buildTag": "latest",
+  "meta": { "templateId": "python-empty" },
+  "dockerfile": "../Dockerfile",
+  "input": "./input_schema.json",
+  "storages": { "dataset": "./dataset_schema.json" }
+}

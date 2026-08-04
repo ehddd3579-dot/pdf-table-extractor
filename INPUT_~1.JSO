@@ -1,0 +1,82 @@
+{
+  "title": "PDF Table Extractor input",
+  "type": "object",
+  "schemaVersion": 1,
+  "properties": {
+    "pdfUrls": {
+      "title": "PDF URLs",
+      "type": "array",
+      "description": "Direct links to the PDF files you want tables from. Each PDF is downloaded and every detected table becomes one result.",
+      "editor": "stringList",
+      "prefill": ["https://arxiv.org/pdf/1706.03762"],
+      "example": ["https://example.com/annual-report.pdf"]
+    },
+    "strategy": {
+      "title": "Detection strategy",
+      "type": "string",
+      "description": "auto runs all three detectors and keeps the best result per table. Use lines for tables with visible borders, text for whitespace-aligned tables.",
+      "editor": "select",
+      "default": "auto",
+      "enum": ["auto", "lines", "text", "hybrid"],
+      "enumTitles": [
+        "Auto (recommended)",
+        "Ruled lines only",
+        "Whitespace alignment only",
+        "Hybrid (vertical lines + text rows)"
+      ]
+    },
+    "minRows": {
+      "title": "Minimum rows",
+      "type": "integer",
+      "description": "Ignore detected tables with fewer rows than this.",
+      "default": 2,
+      "minimum": 1,
+      "maximum": 100
+    },
+    "minColumns": {
+      "title": "Minimum columns",
+      "type": "integer",
+      "description": "Ignore detected tables with fewer columns than this. Keep at 2 or more to avoid picking up paragraphs.",
+      "default": 2,
+      "minimum": 1,
+      "maximum": 50
+    },
+    "minQualityScore": {
+      "title": "Minimum quality score",
+      "type": "integer",
+      "description": "0-100. Filters out sparse or malformed detections. Lower it if tables are being missed, raise it if you get noise.",
+      "default": 25,
+      "minimum": 0,
+      "maximum": 100,
+      "unit": "score"
+    },
+    "maxPagesPerPdf": {
+      "title": "Max pages per PDF",
+      "type": "integer",
+      "description": "0 means process every page.",
+      "default": 0,
+      "minimum": 0
+    },
+    "maxFileSizeMb": {
+      "title": "Max file size (MB)",
+      "type": "integer",
+      "description": "PDFs larger than this are skipped.",
+      "default": 50,
+      "minimum": 1,
+      "maximum": 500
+    },
+    "includeMarkdown": {
+      "title": "Include Markdown output",
+      "type": "boolean",
+      "description": "Adds a ready-to-paste Markdown table to every result. Useful for LLM pipelines.",
+      "default": true
+    },
+    "includeCsv": {
+      "title": "Include CSV output",
+      "type": "boolean",
+      "description": "Adds a CSV string to every result.",
+      "default": true
+    }
+  },
+  "required": ["pdfUrls"]
+}

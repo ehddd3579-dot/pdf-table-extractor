@@ -1,0 +1,33 @@
+{
+  "actorSpecification": 1,
+  "views": {
+    "overview": {
+      "title": "Extracted tables",
+      "transformation": {
+        "fields": [
+          "fileName", "pageNumber", "tableIndex", "caption",
+          "rowCount", "columnCount", "emptyCellCount",
+          "qualityScore", "extractionStrategy", "header", "rows", "markdown", "csv"
+        ]
+      },
+      "display": {
+        "component": "table",
+        "properties": {
+          "fileName": { "label": "File" },
+          "pageNumber": { "label": "Page" },
+          "tableIndex": { "label": "#" },
+          "caption": { "label": "Caption" },
+          "rowCount": { "label": "Rows" },
+          "columnCount": { "label": "Cols" },
+          "emptyCellCount": { "label": "Empty cells" },
+          "qualityScore": { "label": "Quality" },
+          "extractionStrategy": { "label": "Strategy" },
+          "header": { "label": "Header" },
+          "rows": { "label": "Data" },
+          "markdown": { "label": "Markdown" },
+          "csv": { "label": "CSV" }
+        }
+      }
+    }
+  }
+}
