@@ -141,32 +141,52 @@ _HAS_DIGIT = re.compile(r"\d")
 def looks_like_prose(rows: list) -> bool:
     """Detect body text that a whitespace detector mistook for a table.
 
-    Running prose sliced into columns produces the same word in the same column
-    on every line ("This page contains only ..."). Real tables vary down a
-    column. Column-wise uniqueness is therefore the strongest signal, and we
-    require the block to also be wide and largely non-numeric before rejecting.
+    Three independent signals, any of which rejects the block:
+
+    1. Column-wise repetition - prose sliced into columns repeats the same word
+       in the same column on every line. Real tables vary down a column.
+    2. Long cells - table cells are short labels and values; prose fragments run
+       long and contain several words.
+    3. Sentence punctuation - prose fragments end in commas and periods.
+
+    Every rule is gated on the block being largely non-numeric, so numeric
+    tables are never rejected.
     """
-    if len(rows) < 5 or not rows[0]:
+    if len(rows) < 4 or not rows[0]:
         return False
     n_cols = len(rows[0])
-    if n_cols < 5:
+    if n_cols < 2:
         return False
 
     filled = [c for r in rows for c in r if c is not None]
     if not filled:
         return False
+
     numeric_ratio = sum(1 for c in filled if _HAS_DIGIT.search(c)) / len(filled)
-    if numeric_ratio >= 0.10:
+    if numeric_ratio >= 0.15:
         return False
 
+    # 2. Wordy cells.
+    multiword = sum(1 for c in filled if c.count(" ") >= 3) / len(filled)
+    avg_len = sum(len(c) for c in filled) / len(filled)
+    if multiword > 0.30 or (avg_len > 28 and numeric_ratio < 0.05):
+        return True
+
+    # 3. Sentence punctuation on non-numeric cells.
+    sentence_end = sum(1 for c in filled if c.endswith((".", ",", ";", ":"))) / len(filled)
+    if sentence_end > 0.45 and numeric_ratio < 0.10:
+        return True
+
+    # 1. Column repetition.
     ratios = []
     for i in range(n_cols):
         col = [r[i] for r in rows if r[i] is not None]
-        if col:
+        if len(col) >= 3:
             ratios.append(len(set(col)) / len(col))
-    if not ratios:
-        return False
-    return (sum(ratios) / len(ratios)) < 0.40
+    if ratios and (sum(ratios) / len(ratios)) < 0.45 and numeric_ratio < 0.10:
+        return True
+
+    return False
 
 
 def merge_multilevel_header(rows: list) -> list:
