@@ -407,6 +407,7 @@ async def main() -> None:
         max_pages = int(cfg.get("maxPagesPerPdf", 0)) or None
         want_md = bool(cfg.get("includeMarkdown", True))
         want_csv = bool(cfg.get("includeCsv", True))
+        require_caption = bool(cfg.get("requireCaption", False))
         max_bytes = int(cfg.get("maxFileSizeMb", 50)) * 1024 * 1024
 
         await charge("actor-start")
@@ -450,6 +451,13 @@ async def main() -> None:
                                 continue
 
                             for tbl in found:
+                                caption = find_caption(page, tbl["bbox"])
+                                # A labelled table ("Table 3: ...") is almost
+                                # always a real table. In papers and reports this
+                                # is the single most reliable precision filter.
+                                if require_caption and not caption:
+                                    continue
+
                                 rows = tbl["rows"]
                                 header_flag = looks_like_header(rows)
                                 table_index += 1
@@ -461,7 +469,7 @@ async def main() -> None:
                                     "pageNumber": page_no + 1,
                                     "pageCount": page_total,
                                     "tableIndex": table_index,
-                                    "caption": find_caption(page, tbl["bbox"]),
+                                    "caption": caption,
                                     "rowCount": len(rows),
                                     "columnCount": len(rows[0]),
                                     "hasHeader": header_flag,
